@@ -36,8 +36,7 @@ class LangChainLlmService(LlmService):
         workflow.add_edge("parse_plan", END)
         return workflow.compile()
 
-    @staticmethod
-    def _format_prompt_node(state: GraphState) -> GraphState:
+    def _format_prompt_node(self, state: GraphState) -> GraphState:
         request = state.request
         prompt = PLAN_GENERATION_PROMPT.format(
             agent_character_type=request.context.agent_character_type,
@@ -60,8 +59,7 @@ class LangChainLlmService(LlmService):
         response = self._llm.invoke(state.formatted_prompt)
         return replace(state, llm_output=response.content)
 
-    @staticmethod
-    def _parse_plan_node(state: GraphState) -> GraphState:
+    def _parse_plan_node(self, state: GraphState) -> GraphState:
         if state.llm_output is None:
             raise RuntimeError("llm_output is not set")
         parser = PydanticOutputParser(pydantic_object=Plan)

@@ -1,18 +1,23 @@
+import json
+
 from langchain_core.prompts import ChatPromptTemplate
 
-system_prompt_template = """
+from gaia.domain.entities import Plan
+
+plan_schema = Plan.model_json_schema()
+plan_schema_str = json.dumps(plan_schema, indent=2)
+escaped_plan_schema_str = plan_schema_str.replace("{", "{{").replace("}", "}}")
+
+system_prompt_template = f"""
 You are an expert AI game agent commander. Your role is to create a strategic plan for an agent in a game based on the current context and available information.
 
-Your output MUST be a single, valid JSON object that strictly adheres to the provided `Plan` schema.
+Your output MUST be a single, valid JSON object that strictly adheres to the following JSON Schema.
 Do not include any other text, explanations, or markdown formatting around the JSON object.
 
-The plan should consist of:
-1.  `overall_objective`: A brief, high-level summary of what the plan aims to achieve.
-2.  `objectives`: A list of specific, prioritized goals to accomplish.
-3.  `strategy`: The general behavior and rules of engagement the agent should follow.
-4.  `thought`: Your reasoning and strategic thinking process for creating this plan.
-
-Analyze the agent's context, mission, and the available static data to make informed decisions. The plan should be logical, coherent, and effective for the given situation.
+**JSON Schema:**
+```json
+{escaped_plan_schema_str}
+```
 """
 
 human_prompt_template = """
