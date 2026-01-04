@@ -1,36 +1,35 @@
 import uvicorn
 from dotenv import load_dotenv
+from fastapi import FastAPI
 
 from gaia.containers import Container
-from gaia.presentation.api.app import create_app
+from gaia.presentation.api.app import create_api_router
 
 
-def main():
-    """
-    This is the composition root of the application.
-    It creates the DI container, wires it to the application layers,
-    and starts the web server.
-    """
-    # 1. Load environment variables from .env file
+def create_app():
+    # Load environment variables from .env file
     load_dotenv()
 
-    # 2. Create the DI container instance
+    # Create the DI container instance
     container = Container()
 
-    # 3. Configure the container using environment variables
-    # This sets the LLM_MODE for the Selector provider.
-    # It defaults to "MOCK" if the variable is not set.
-    container.config.LLM_MODE.from_env("LLM_MODE", "MOCK")
-
-    # 4. Wire the container to the modules that need injection.
+    # Wire the container to the modules that need injection.
     container.wire(modules=["gaia.presentation.api.routers.plan"])
 
-    # 5. Create the FastAPI app instance
-    app = create_app()
+    # Create the FastAPI app instance and include routers
+    app = FastAPI(
+        title="Game AI Agent Server (Reloadable)",
+        description="An API server using a clean, reloadable architecture.",
+        version="1.2.0",
+    )
 
-    # 6. Run the Uvicorn server programmatically
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Get the router from the presentation layer
+    api_router = create_api_router()
+    app.include_router(api_router)
+
+    return app
 
 
 if __name__ == "__main__":
-    main()
+    app = create_app()
+    uvicorn.run(app, host="0.0.0.0", port=8000)

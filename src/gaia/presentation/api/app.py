@@ -1,12 +1,9 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
+
 from gaia.presentation.api.routers import plan
 
 
-def create_app() -> FastAPI:
-    app = FastAPI(
-        title="Game AI Agent Server (Clean Architecture)",
-        description="An API server to generate strategic plans for game AI agents using LangGraph.",
-        version="1.1.0",
-    )
-    app.include_router(plan.router)
-    return app
+def create_api_router() -> APIRouter:
+    router = APIRouter()
+    router.include_router(plan.router)
+    return router
