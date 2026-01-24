@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug FastAPI (Mock)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["src.main:create_app", "--factory", "--reload"],
+      "console": "integratedTerminal",
+      "env": {
+        "LLM_MODE": "MOCK"
+      }
+    },
+    {
+      "name": "Debug FastAPI (Gemini)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["src.main:create_app", "--factory", "--reload"],
+      "console": "integratedTerminal",
+      "env": {
+        "LLM_MODE": "GEMINI"
+      }
+    }
+  ]
+}
