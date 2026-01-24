@@ -1,6 +1,7 @@
 import pickle
 from typing import Optional, cast
 
+import aiosqlite
 from langgraph.checkpoint.base import Checkpoint, RunnableConfig
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
@@ -11,18 +12,20 @@ from gaia.domain.planning.repositories import PlanningSessionRepository
 class LangGraphPlanningSessionRepository(PlanningSessionRepository):
     def __init__(self, db_path: str):
         self._db_path = db_path
+        self._conn: Optional[aiosqlite.Connection] = None
         self._saver: Optional[AsyncSqliteSaver] = None
 
     async def initialize(self) -> None:
-        conn = AsyncSqliteSaver.from_conn_string(self._db_path)
-        self._saver = await conn.__aenter__()
+        self._conn = await aiosqlite.connect(self._db_path)
+        self._saver = AsyncSqliteSaver(self._conn)
         await self._saver.setup()
 
     async def save(self, session: PlanningSession) -> None:
         if not self._saver:
             raise RuntimeError("Repository not initialized")
         config = cast(
-            RunnableConfig, {"configurable": {"thread_id": session.session_id}}
+            RunnableConfig,
+            {"configurable": {"thread_id": session.session_id, "checkpoint_ns": ""}},
         )
         checkpoint = cast(
             Checkpoint,
@@ -40,7 +43,10 @@ class LangGraphPlanningSessionRepository(PlanningSessionRepository):
     async def get(self, session_id: str) -> Optional[PlanningSession]:
         if not self._saver:
             raise RuntimeError("Repository not initialized")
-        config = cast(RunnableConfig, {"configurable": {"thread_id": session_id}})
+        config = cast(
+            RunnableConfig,
+            {"configurable": {"thread_id": session_id, "checkpoint_ns": ""}},
+        )
         checkpoint_tuple = await self._saver.aget_tuple(config)
 
         if not checkpoint_tuple:

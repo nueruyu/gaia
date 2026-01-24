@@ -1,4 +1,3 @@
-import json
 from typing import Any, List
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -46,11 +45,8 @@ class LangChainLlm(Llm):
                         tc_dicts.append(
                             {
                                 "id": tc.id,
-                                "type": "function",
-                                "function": {
-                                    "name": tc.function_name,
-                                    "arguments": json.dumps(tc.arguments),
-                                },
+                                "name": tc.function_name,
+                                "args": tc.arguments,
                             }
                         )
                     lc_messages.append(

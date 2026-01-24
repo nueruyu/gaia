@@ -1,13 +1,14 @@
-import streamlit as st
-import requests
 import json
+
+import requests
+import streamlit as st
 
 # --- Config ---
 API_BASE_URL = "http://127.0.0.1:8000"
 
 # --- Defaults ---
 DEFAULT_INSTRUCTION = (
-    "現在のエリアを探索し、敵がいれば排除しつつ、回復アイテムを集めてください。"
+    "Explore the current area, eliminate any enemies, and collect healing items."
 )
 
 DEFAULT_TOOL_DEFINITIONS = [
