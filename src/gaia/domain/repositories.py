@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from gaia.domain.aggregates import PlanningSession
 
+
 class PlanningSessionRepository(ABC):
     @abstractmethod
     async def save(self, session: PlanningSession) -> None:

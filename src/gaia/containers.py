@@ -9,6 +9,7 @@ from gaia.infrastructure.persistence.langgraph_repository import LangGraphReposi
 from gaia.application.use_cases.create_session import CreateSessionUseCase
 from gaia.application.use_cases.submit_tool_outputs import SubmitToolOutputsUseCase
 
+
 class Container(containers.DeclarativeContainer):
     config: providers.Singleton[Settings] = providers.Singleton(Settings)
 
@@ -22,23 +23,15 @@ class Container(containers.DeclarativeContainer):
     )
 
     planning_repo = providers.Singleton(
-        LangGraphRepository,
-        db_path=config.provided.DB_PATH
+        LangGraphRepository, db_path=config.provided.DB_PATH
     )
 
-    llm_service = providers.Singleton(
-        LangChainLlmService,
-        llm=llm_model
-    )
+    llm_service = providers.Singleton(LangChainLlmService, llm=llm_model)
 
     create_session_use_case = providers.Factory(
-        CreateSessionUseCase,
-        repo=planning_repo,
-        llm=llm_service
+        CreateSessionUseCase, repo=planning_repo, llm=llm_service
     )
 
     submit_tool_outputs_use_case = providers.Factory(
-        SubmitToolOutputsUseCase,
-        repo=planning_repo,
-        llm=llm_service
+        SubmitToolOutputsUseCase, repo=planning_repo, llm=llm_service
     )

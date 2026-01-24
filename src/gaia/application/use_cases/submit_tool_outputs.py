@@ -4,12 +4,18 @@ from gaia.domain.repositories import PlanningSessionRepository
 from gaia.application.dtos import SessionDto, ToolOutputDto, ToolDefinitionDto
 from gaia.application.mappers import SessionMapper, ToolMapper
 
+
 class SubmitToolOutputsUseCase:
     def __init__(self, repo: PlanningSessionRepository, llm: LlmService):
         self._repo = repo
         self._llm = llm
 
-    async def execute(self, session_id: str, outputs_dto: List[ToolOutputDto], tool_defs_dto: List[ToolDefinitionDto]) -> SessionDto:
+    async def execute(
+        self,
+        session_id: str,
+        outputs_dto: List[ToolOutputDto],
+        tool_defs_dto: List[ToolDefinitionDto],
+    ) -> SessionDto:
         session = await self._repo.get(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")

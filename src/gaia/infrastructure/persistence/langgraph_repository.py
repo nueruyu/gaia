@@ -21,15 +21,20 @@ class LangGraphRepository(PlanningSessionRepository):
     async def save(self, session: PlanningSession) -> None:
         if not self._saver:
             raise RuntimeError("Repository not initialized")
-        config = cast(RunnableConfig, {"configurable": {"thread_id": session.session_id}})
-        checkpoint = cast(Checkpoint, {
-            "v": 1,
-            "id": session.session_id,
-            "ts": "",
-            "channel_values": {"session_data": pickle.dumps(session)},
-            "channel_versions": {},
-            "versions_seen": {},
-        })
+        config = cast(
+            RunnableConfig, {"configurable": {"thread_id": session.session_id}}
+        )
+        checkpoint = cast(
+            Checkpoint,
+            {
+                "v": 1,
+                "id": session.session_id,
+                "ts": "",
+                "channel_values": {"session_data": pickle.dumps(session)},
+                "channel_versions": {},
+                "versions_seen": {},
+            },
+        )
         await self._saver.aput(config, checkpoint, {}, {})
 
     async def get(self, session_id: str) -> Optional[PlanningSession]:

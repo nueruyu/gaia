@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from gaia.containers import Container
 from gaia.presentation.api.app import create_api_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     container = app.state.container
@@ -13,22 +14,20 @@ async def lifespan(app: FastAPI):
     await repo.initialize()
     yield
 
+
 def create_app():
     load_dotenv()
     container = Container()
     container.wire(modules=["gaia.presentation.api.routers.plan"])
 
-    app = FastAPI(
-        title="Gaia AI Server",
-        version="2.0.0",
-        lifespan=lifespan
-    )
+    app = FastAPI(title="Gaia AI Server", version="2.0.0", lifespan=lifespan)
     app.state.container = container
 
     api_router = create_api_router()
     app.include_router(api_router)
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

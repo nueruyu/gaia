@@ -4,7 +4,10 @@ from gaia.domain.aggregates import PlanningSession
 from gaia.domain.values import ToolCall
 from gaia.domain.entities import Plan
 
+
 class LlmService(ABC):
     @abstractmethod
-    async def think(self, session: PlanningSession) -> Tuple[str, List[ToolCall], Optional[Plan]]:
+    async def think(
+        self, session: PlanningSession
+    ) -> Tuple[str, List[ToolCall], Optional[Plan]]:
         pass
