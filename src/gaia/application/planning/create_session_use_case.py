@@ -1,31 +1,22 @@
 from gaia.application.ai.dto import CreateSessionRequest, ToolDefinitionDto
-from gaia.application.planning.dtos import (
-    PlanningSessionDto,
-)
-from gaia.application.planning.mappers import SessionMapper, ToolMapper
-from gaia.application.planning.planning_service import PlanningService
+from gaia.application.ai.mapper import AIMapper
+from gaia.application.planning.dtos import PlanningSessionDto
+from gaia.application.planning.mapper import PlanningMapper
+from gaia.application.planning.planning_session_service import PlanningSessionService
 from gaia.domain.planning.planning_session import PlanningSession
-from gaia.domain.planning.planning_session_repository import PlanningSessionRepository
 
 
 class CreateSessionUseCase:
-    def __init__(
-        self,
-        session_repository: PlanningSessionRepository,
-        planning_service: PlanningService,
-    ):
-        self._session_repository = session_repository
-        self._planning_service = planning_service
+    def __init__(self, planning_session_service: PlanningSessionService):
+        self._planning_session_service = planning_session_service
 
     async def execute(self, request: CreateSessionRequest) -> PlanningSessionDto:
         tool_defs = [
-            ToolMapper.to_domain(ToolDefinitionDto(**td))
+            AIMapper.to_tool_definition(ToolDefinitionDto(**td))
             for td in request.tool_definitions
         ]
         session = PlanningSession.create(request.instruction, tool_defs)
 
-        content, tool_calls, plan = await self._planning_service.think(session)
-        session.add_ai_response(content, tool_calls, plan)
+        await self._planning_session_service.advance(session)
 
-        await self._session_repository.save(session)
-        return SessionMapper.to_dto(session)
+        return PlanningMapper.to_planning_session_dto(session)

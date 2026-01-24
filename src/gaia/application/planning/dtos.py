@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from gaia.application.ai.dto import ToolCallDto
 
@@ -15,6 +15,6 @@ class PlanDto(BaseModel):
 class PlanningSessionDto(BaseModel):
     session_id: str
     status: str
-    tool_calls: Optional[List[ToolCallDto]] = None
+    tool_calls: List[ToolCallDto] = Field(default_factory=list)
     plan: Optional[PlanDto] = None
     error_message: Optional[str] = None

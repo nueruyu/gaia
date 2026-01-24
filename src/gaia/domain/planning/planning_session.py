@@ -41,26 +41,26 @@ class PlanningSession:
             tool_definitions=tool_definitions,
         )
 
-    def add_ai_response(
-        self,
-        content: str,
-        tool_calls: List[ToolCall],
-        parsed_plan: Optional[Plan],
-    ):
+    def request_tool_calls(self, content: str, tool_calls: List[ToolCall]) -> None:
         if self.status != SessionStatus.THINKING:
-            raise RuntimeError(f"Status mismatch: Expected THINKING, got {self.status}")
+            raise PlanningError(
+                f"Status mismatch: Expected THINKING, got {self.status}"
+            )
+        if not tool_calls:
+            raise PlanningError("tool_calls must not be empty")
 
         self.history.append(AIMessage(content=content, tool_calls=tool_calls))
+        self.status = SessionStatus.WAITING_FOR_TOOL
 
-        if parsed_plan:
-            self.generated_plan = parsed_plan
-            self.status = SessionStatus.COMPLETED
-        elif tool_calls:
-            self.status = SessionStatus.WAITING_FOR_TOOL
-        else:
+    def complete_with_plan(self, content: str, plan: Plan) -> None:
+        if self.status != SessionStatus.THINKING:
             raise PlanningError(
-                "LLM response must contain either tool calls or a valid plan JSON."
+                f"Status mismatch: Expected THINKING, got {self.status}"
             )
+
+        self.history.append(AIMessage(content=content, tool_calls=[]))
+        self.generated_plan = plan
+        self.status = SessionStatus.COMPLETED
 
     def add_tool_outputs(
         self,
@@ -68,13 +68,13 @@ class PlanningSession:
         new_definitions: List[ToolDefinition],
     ):
         if self.status != SessionStatus.WAITING_FOR_TOOL:
-            raise RuntimeError("Session is not waiting for tool outputs.")
+            raise PlanningError("Session is not waiting for tool outputs.")
 
-        last_msg = self.history[-1]
-        if not isinstance(last_msg, AIMessage) or not last_msg.tool_calls:
+        waiting_tool_calls = self.get_waiting_tool_calls()
+        if not waiting_tool_calls:
             raise PlanningError("No active tool calls found in history.")
 
-        requested_ids = {tc.id for tc in last_msg.tool_calls}
+        requested_ids = {tc.id for tc in waiting_tool_calls}
         for output in outputs:
             if output.tool_call_id not in requested_ids:
                 raise PlanningError(f"Unexpected tool output id: {output.tool_call_id}")
@@ -85,3 +85,12 @@ class PlanningSession:
 
         self.tool_definitions = new_definitions
         self.status = SessionStatus.THINKING
+
+    def get_waiting_tool_calls(self) -> list[ToolCall]:
+        if self.status != SessionStatus.WAITING_FOR_TOOL:
+            return []
+        last_msg = self.history[-1]
+        if not isinstance(last_msg, AIMessage):
+            return []
+
+        return last_msg.tool_calls

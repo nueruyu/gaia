@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional, Tuple
 
-from gaia.application.planning.planning_service import PlanningService
+from gaia.application.planning.planning_agent import PlanningAgent
 from gaia.domain.ai.message import HumanMessage
 from gaia.domain.ai.tool import ToolCall
 from gaia.domain.planning.plan import Objective, Plan, Strategy
@@ -10,7 +10,7 @@ from gaia.infrastructure.llms.llm import Llm
 from gaia.infrastructure.planning.prompts import SYSTEM_PROMPT
 
 
-class LlmPlanningService(PlanningService):
+class LlmPlanningAgent(PlanningAgent):
     def __init__(self, llm: Llm):
         self._llm = llm
 

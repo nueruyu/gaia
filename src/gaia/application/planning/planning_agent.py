@@ -6,7 +6,7 @@ from gaia.domain.planning.plan import Plan
 from gaia.domain.planning.planning_session import PlanningSession
 
 
-class PlanningService(ABC):
+class PlanningAgent(ABC):
     @abstractmethod
     async def think(
         self, session: PlanningSession
