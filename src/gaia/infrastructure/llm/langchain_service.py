@@ -1,80 +1,85 @@
 import json
-from dataclasses import dataclass, replace
-
+from typing import Tuple, List, Optional, Any
+from langchain_core.messages import SystemMessage, HumanMessage as LCHumanMessage, AIMessage as LCAIMessage, ToolMessage as LCToolMessage, BaseMessage
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.output_parsers import PydanticOutputParser
-from langgraph.graph import END, START, StateGraph
 
-from gaia.application.dtos import PlanRequest
 from gaia.application.interfaces.llm_service import LlmService
-from gaia.domain.entities import Plan
-from gaia.infrastructure.llm.prompts import PLAN_GENERATION_PROMPT
-
-
-@dataclass(frozen=True)
-class GraphState:
-    request: PlanRequest
-    formatted_prompt: str | None = None
-    llm_output: str | None = None
-    parsed_plan: Plan | None = None
-    error: str | None = None
-
+from gaia.domain.aggregates import PlanningSession
+from gaia.domain.values import MessageType, ToolCall, AIMessage, ToolMessage
+from gaia.domain.entities import Plan, Objective, Strategy
+from gaia.infrastructure.llm.prompts import SYSTEM_PROMPT
 
 class LangChainLlmService(LlmService):
     def __init__(self, llm: BaseChatModel):
         self._llm = llm
-        self._app = self._build_graph()
 
-    def _build_graph(self):
-        workflow = StateGraph(GraphState)
-        workflow.add_node("format_prompt", self._format_prompt_node)
-        workflow.add_node("call_llm", self._call_llm_node)
-        workflow.add_node("parse_plan", self._parse_plan_node)
-        workflow.add_edge(START, "format_prompt")
-        workflow.add_edge("format_prompt", "call_llm")
-        workflow.add_edge("call_llm", "parse_plan")
-        workflow.add_edge("parse_plan", END)
-        return workflow.compile()
+    async def think(self, session: PlanningSession) -> Tuple[str, List[ToolCall], Optional[Plan]]:
+        messages: List[BaseMessage] = [SystemMessage(content=SYSTEM_PROMPT)]
 
-    def _format_prompt_node(self, state: GraphState) -> GraphState:
-        request = state.request
-        prompt = PLAN_GENERATION_PROMPT.format(
-            agent_character_type=request.context.agent_character_type,
-            mission_objective=request.context.mission_objective,
-            available_goals=json.dumps(
-                [g.model_dump() for g in request.available_goals], indent=2
-            ),
-            character_types=json.dumps(
-                [c.model_dump() for c in request.definitions.character_types], indent=2
-            ),
-            item_types=json.dumps(
-                [i.model_dump() for i in request.definitions.item_types], indent=2
-            ),
-        )
-        return replace(state, formatted_prompt=prompt)
+        for msg in session.history:
+            if msg.type == MessageType.HUMAN:
+                messages.append(LCHumanMessage(content=msg.content))
+            elif msg.type == MessageType.AI:
+                if isinstance(msg, AIMessage):
+                    tc_dicts: List[Any] = []
+                    for tc in msg.tool_calls:
+                        tc_dicts.append({
+                            "id": tc.id,
+                            "type": "function",
+                            "function": {"name": tc.function_name, "arguments": json.dumps(tc.arguments)}
+                        })
+                    messages.append(LCAIMessage(content=msg.content, tool_calls=tc_dicts))
+            elif msg.type == MessageType.TOOL:
+                if isinstance(msg, ToolMessage):
+                    messages.append(LCToolMessage(tool_call_id=msg.tool_call_id, content=msg.content))
 
-    def _call_llm_node(self, state: GraphState) -> GraphState:
-        if not state.formatted_prompt:
-            return replace(state, error="Prompt was not formatted.")
-        response = self._llm.invoke(state.formatted_prompt)
-        return replace(state, llm_output=response.content)
+        tools_schema = [self._to_tool_schema(td) for td in session.tool_definitions]
+        model = self._llm.bind_tools(tools_schema) if tools_schema else self._llm
 
-    def _parse_plan_node(self, state: GraphState) -> GraphState:
-        if state.llm_output is None:
-            raise RuntimeError("llm_output is not set")
-        parser = PydanticOutputParser(pydantic_object=Plan)
+        response = await model.ainvoke(messages)
+        content = str(response.content)
+
+        tool_calls: List[ToolCall] = []
+        response_tool_calls = getattr(response, 'tool_calls', None)
+        if response_tool_calls:
+            for tc in response_tool_calls:
+                tc_id = tc.get("id", "")
+                tool_calls.append(ToolCall(
+                    id=str(tc_id) if tc_id else "",
+                    function_name=tc["name"],
+                    arguments=tc["args"]
+                ))
+
+        parsed_plan = None
+        if not tool_calls:
+            parsed_plan = self._try_parse_plan(content)
+
+        return content, tool_calls, parsed_plan
+
+    def _to_tool_schema(self, td: Any) -> dict[str, Any]:
+        return {
+            "type": "function",
+            "function": {
+                "name": td.name,
+                "description": td.description,
+                "parameters": td.parameters
+            }
+        }
+
+    def _try_parse_plan(self, content: str) -> Optional[Plan]:
         try:
-            parsed_plan = parser.parse(state.llm_output)
-            return replace(state, parsed_plan=parsed_plan)
-        except Exception as e:
-            return replace(state, error=f"Failed to parse LLM output: {e}")
+            cleaned = content.strip()
+            if "```json" in cleaned:
+                cleaned = cleaned.split("```json")[1].split("```")[0]
+            elif "```" in cleaned:
+                cleaned = cleaned.split("```")[1].split("```")[0]
 
-    def create_plan(self, request: PlanRequest) -> Plan:
-        initial_state = GraphState(request=request)
-        final_state_dict = self._app.invoke(initial_state)
-        final_state = GraphState(**final_state_dict)
-        if final_state.error:
-            raise ValueError(final_state.error)
-        if not final_state.parsed_plan:
-            raise ValueError("Plan could not be created by the LLM.")
-        return final_state.parsed_plan
+            data = json.loads(cleaned)
+            return Plan(
+                overall_objective=data["overall_objective"],
+                objectives=[Objective(**obj) for obj in data["objectives"]],
+                strategy=Strategy(**data["strategy"]),
+                thought=data.get("thought", "")
+            )
+        except Exception:
+            return None

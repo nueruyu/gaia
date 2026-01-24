@@ -1,39 +1,36 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 
-from gaia.application.use_cases.create_plan import CreatePlanUseCase
+from gaia.application.use_cases.create_session import CreateSessionUseCase
+from gaia.application.use_cases.submit_tool_outputs import SubmitToolOutputsUseCase
 from gaia.containers import Container
-from gaia.presentation.api.schemas import ApiPlanRequest, ApiPlanResponse
+from gaia.presentation.api.schemas import CreateSessionRequest, SubmitToolOutputsRequest, SessionResponse
+from gaia.application.dtos import ToolDefinitionDto, ToolOutputDto
 
-router = APIRouter()
+router = APIRouter(prefix="/planning", tags=["Planning"])
 
-
-@router.post(
-    "/request_plan",
-    response_model=ApiPlanResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["AI Planning"],
-)
+@router.post("/request", response_model=SessionResponse)
 @inject
-def request_plan_endpoint(
-    request: ApiPlanRequest,
-    create_plan_use_case: CreatePlanUseCase = Depends(
-        Provide[Container.create_plan_use_case]
-    ),
+async def create_session(
+    request: CreateSessionRequest,
+    use_case: CreateSessionUseCase = Depends(Provide[Container.create_session_use_case])
 ):
-    """Receives game state and context, then returns a strategic plan for an AI agent."""
     try:
-        plan = create_plan_use_case.execute(request)
-        return plan
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        tool_defs = [ToolDefinitionDto(**td) for td in request.tool_definitions]
+        return await use_case.execute(request.instruction, tool_defs)
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.get("/health", tags=["System"])
-def health_check():
-    """A simple health check endpoint."""
-    return {"status": "ok"}
+@router.post("/respond/{session_id}", response_model=SessionResponse)
+@inject
+async def submit_tool_outputs(
+    session_id: str,
+    request: SubmitToolOutputsRequest,
+    use_case: SubmitToolOutputsUseCase = Depends(Provide[Container.submit_tool_outputs_use_case])
+):
+    try:
+        outputs = [ToolOutputDto(**o) for o in request.tool_outputs]
+        tool_defs = [ToolDefinitionDto(**td) for td in request.tool_definitions]
+        return await use_case.execute(session_id, outputs, tool_defs)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

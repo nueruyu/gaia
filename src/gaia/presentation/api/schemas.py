@@ -1,8 +1,13 @@
-# The API layer uses the DTOs from the application layer as its contract.
-# In more complex apps, you might have API-specific models here for validation or formatting.
-from gaia.application.dtos import PlanRequest
-from gaia.domain.entities import Plan
+from typing import List, Dict, Any
+from pydantic import BaseModel
+from gaia.application.dtos import SessionDto
 
-# Re-exporting for clarity in the presentation layer
-ApiPlanRequest = PlanRequest
-ApiPlanResponse = Plan
+class CreateSessionRequest(BaseModel):
+    instruction: str
+    tool_definitions: List[Dict[str, Any]]
+
+class SubmitToolOutputsRequest(BaseModel):
+    tool_outputs: List[Dict[str, Any]]
+    tool_definitions: List[Dict[str, Any]]
+
+SessionResponse = SessionDto

@@ -1,33 +1,29 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any
-from gaia.domain.entities import CharacterTypeDefinition, ItemTypeDefinition
+from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
 
-# --- DTOs for CreatePlanUseCase ---
+class ToolDefinitionDto(BaseModel):
+    name: str
+    description: str
+    parameters: Dict[str, Any]
 
+class ToolOutputDto(BaseModel):
+    tool_call_id: str
+    output: str
 
-class GoalDefinition(BaseModel):
-    name: str = Field(..., description="The name of the goal.")
-    description: str = Field(..., description="A description of what the goal entails.")
-    parameters: Dict[str, Any] = Field(
-        ..., description="Parameters required to execute the goal."
-    )
+class ToolCallDto(BaseModel):
+    id: str
+    function_name: str
+    arguments: str
 
+class PlanDto(BaseModel):
+    overall_objective: str
+    objectives: List[Dict[str, Any]]
+    strategy: Dict[str, Any]
+    thought: str
 
-class StaticDefinitions(BaseModel):
-    character_types: List[CharacterTypeDefinition]
-    item_types: List[ItemTypeDefinition]
-
-
-class AgentContext(BaseModel):
-    agent_character_type: str = Field(
-        ..., description="The character type of the agent itself."
-    )
-    mission_objective: str = Field(
-        ..., description="The overall high-level mission objective."
-    )
-
-
-class PlanRequest(BaseModel):
-    context: AgentContext
-    definitions: StaticDefinitions
-    available_goals: List[GoalDefinition]
+class SessionDto(BaseModel):
+    session_id: str
+    status: str
+    tool_calls: Optional[List[ToolCallDto]] = None
+    plan: Optional[PlanDto] = None
+    error_message: Optional[str] = None
