@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Optional
-from gaia.domain.aggregates import PlanningSession
-from gaia.domain.values import ToolCall
-from gaia.domain.entities import Plan
+from typing import List, Optional, Tuple
+
+from gaia.domain.ai.values import ToolCall
+from gaia.domain.planning.aggregates import PlanningSession
+from gaia.domain.planning.entities import Plan
 
 
 class LlmService(ABC):

@@ -1,11 +1,11 @@
 import pickle
 from typing import Optional, cast
 
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.base import Checkpoint, RunnableConfig
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
-from gaia.domain.aggregates import PlanningSession
-from gaia.domain.repositories import PlanningSessionRepository
+from gaia.domain.planning.aggregates import PlanningSession
+from gaia.domain.planning.repositories import PlanningSessionRepository
 
 
 class LangGraphRepository(PlanningSessionRepository):

@@ -1,27 +1,34 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import List, Optional
 from uuid import uuid4
-from gaia.domain.values import (
-    SessionStatus,
-    DomainMessage,
-    HumanMessage,
+
+from gaia.domain.ai.values import (
     AIMessage,
-    ToolMessage,
-    ToolDefinition,
-    ToolOutput,
+    HumanMessage,
+    Message,
     ToolCall,
+    ToolDefinition,
+    ToolMessage,
+    ToolOutput,
 )
-from gaia.domain.entities import Plan
+from gaia.domain.planning.entities import Plan
 
 
 class DomainError(Exception):
     pass
 
 
+class SessionStatus(str, Enum):
+    THINKING = "Thinking"
+    WAITING_FOR_TOOL = "WaitingForTool"
+    COMPLETED = "Completed"
+
+
 @dataclass
 class PlanningSession:
     session_id: str
-    history: List[DomainMessage]
+    history: List[Message]
     status: SessionStatus
     tool_definitions: List[ToolDefinition]
     generated_plan: Optional[Plan] = None
@@ -51,10 +58,9 @@ class PlanningSession:
         elif tool_calls:
             self.status = SessionStatus.WAITING_FOR_TOOL
         else:
-            # Fallback if no tool calls and no plan (e.g. just chat), treat as waiting or complete depending on logic
-            # For this strict flow, we treat it as WAITING_FOR_TOOL or error.
-            # Ideally LLM should always return tools or plan json.
-            self.status = SessionStatus.WAITING_FOR_TOOL
+            raise DomainError(
+                "LLM response must contain either tool calls or a valid plan JSON."
+            )
 
     def add_tool_outputs(
         self, outputs: List[ToolOutput], new_definitions: List[ToolDefinition]

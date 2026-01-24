@@ -1,4 +1,5 @@
 from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,5 +11,4 @@ class Settings(BaseSettings):
     )
 
     LLM_MODE: Literal["MOCK", "GEMINI"] = "GEMINI"
-    GOOGLE_API_KEY: str | None = None
     DB_PATH: str = "sqlite+aiosqlite:///gaia.db"

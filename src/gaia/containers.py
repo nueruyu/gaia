@@ -1,13 +1,13 @@
 from dependency_injector import containers, providers
 from langchain_core.language_models.chat_models import BaseChatModel
 
+from gaia.application.planning.create_session import CreateSessionUseCase
+from gaia.application.planning.submit_tool_outputs import SubmitToolOutputsUseCase
 from gaia.config import Settings
 from gaia.infrastructure.llm.gemini_llm import create_gemini_llm
-from gaia.infrastructure.llm.mock_llm import MockChatModel
 from gaia.infrastructure.llm.langchain_service import LangChainLlmService
+from gaia.infrastructure.llm.mock_llm import MockChatModel
 from gaia.infrastructure.persistence.langgraph_repository import LangGraphRepository
-from gaia.application.use_cases.create_session import CreateSessionUseCase
-from gaia.application.use_cases.submit_tool_outputs import SubmitToolOutputsUseCase
 
 
 class Container(containers.DeclarativeContainer):

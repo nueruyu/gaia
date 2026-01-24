@@ -1,12 +1,14 @@
 import json
-from gaia.domain.aggregates import PlanningSession
-from gaia.domain.values import ToolDefinition, ToolOutput, SessionStatus, AIMessage
-from gaia.application.dtos import (
-    SessionDto,
-    ToolDefinitionDto,
-    ToolOutputDto,
-    ToolCallDto,
+
+from gaia.application.ai.dto import ToolCallDto, ToolDefinitionDto, ToolOutputDto
+from gaia.application.planning.dtos import (
     PlanDto,
+    PlanningSessionDto,
+)
+from gaia.domain.ai.values import AIMessage, ToolDefinition, ToolOutput
+from gaia.domain.planning.aggregates import (
+    PlanningSession,
+    SessionStatus,
 )
 
 
@@ -24,7 +26,7 @@ class ToolMapper:
 
 class SessionMapper:
     @staticmethod
-    def to_dto(session: PlanningSession) -> SessionDto:
+    def to_dto(session: PlanningSession) -> PlanningSessionDto:
         tool_calls_dto = None
 
         if session.status == SessionStatus.WAITING_FOR_TOOL:
@@ -56,7 +58,7 @@ class SessionMapper:
                 thought=p.thought,
             )
 
-        return SessionDto(
+        return PlanningSessionDto(
             session_id=session.session_id,
             status=session.status.value,
             tool_calls=tool_calls_dto,

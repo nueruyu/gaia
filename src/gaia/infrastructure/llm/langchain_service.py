@@ -16,10 +16,10 @@ from langchain_core.messages import (
     ToolMessage as LCToolMessage,
 )
 
-from gaia.application.interfaces.llm_service import LlmService
-from gaia.domain.aggregates import PlanningSession
-from gaia.domain.entities import Objective, Plan, Strategy
-from gaia.domain.values import AIMessage, MessageType, ToolCall, ToolMessage
+from gaia.application.planning.llm_service import LlmService
+from gaia.domain.ai.values import AIMessage, MessageType, ToolCall, ToolMessage
+from gaia.domain.planning.aggregates import PlanningSession
+from gaia.domain.planning.entities import Objective, Plan, Strategy
 from gaia.infrastructure.llm.prompts import SYSTEM_PROMPT
 
 

@@ -1,18 +1,12 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 class MessageType(str, Enum):
     HUMAN = "human"
     AI = "ai"
     TOOL = "tool"
-
-
-class SessionStatus(str, Enum):
-    THINKING = "Thinking"
-    WAITING_FOR_TOOL = "WaitingForTool"
-    COMPLETED = "Completed"
 
 
 @dataclass
@@ -36,13 +30,13 @@ class ToolOutput:
 
 
 @dataclass
-class DomainMessage:
+class Message:
     type: MessageType
     content: str
 
 
 @dataclass
-class AIMessage(DomainMessage):
+class AIMessage(Message):
     tool_calls: List[ToolCall] = field(default_factory=list)
 
     def __init__(self, content: str, tool_calls: Optional[List[ToolCall]] = None):
@@ -52,14 +46,14 @@ class AIMessage(DomainMessage):
 
 
 @dataclass
-class HumanMessage(DomainMessage):
+class HumanMessage(Message):
     def __init__(self, content: str):
         self.type = MessageType.HUMAN
         self.content = content
 
 
 @dataclass
-class ToolMessage(DomainMessage):
+class ToolMessage(Message):
     tool_call_id: str
 
     def __init__(self, tool_call_id: str, content: str):

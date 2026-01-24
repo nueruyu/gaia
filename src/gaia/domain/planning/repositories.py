@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
-from gaia.domain.aggregates import PlanningSession
+
+from gaia.domain.planning.aggregates import PlanningSession
 
 
 class PlanningSessionRepository(ABC):
