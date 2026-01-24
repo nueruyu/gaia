@@ -1,6 +1,5 @@
 from gaia.application.ai.dto import (
     SubmitToolOutputsRequest,
-    ToolDefinitionDto,
     ToolOutputDto,
 )
 from gaia.application.ai.mapper import AIMapper
@@ -29,12 +28,8 @@ class SubmitToolOutputsUseCase:
         outputs = [
             AIMapper.to_tool_output(ToolOutputDto(**o)) for o in request.tool_outputs
         ]
-        tool_defs = [
-            AIMapper.to_tool_definition(ToolDefinitionDto(**td))
-            for td in request.tool_definitions
-        ]
 
-        session.add_tool_outputs(outputs, tool_defs)
+        session.add_tool_outputs(outputs)
 
         await self._planning_session_service.advance(session)
 

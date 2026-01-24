@@ -1,13 +1,29 @@
 import json
 
-from gaia.application.ai.dto import ToolCallDto, ToolDefinitionDto, ToolOutputDto
-from gaia.domain.ai.tool import ToolCall, ToolDefinition, ToolOutput
+from gaia.application.ai.dto import (
+    ObjectiveDefinitionDto,
+    ToolCallDto,
+    ToolDefinitionDto,
+    ToolOutputDto,
+)
+from gaia.domain.ai.tool import (
+    ObjectiveDefinition,
+    ToolCall,
+    ToolDefinition,
+    ToolOutput,
+)
 
 
 class AIMapper:
     @staticmethod
     def to_tool_definition(dto: ToolDefinitionDto) -> ToolDefinition:
         return ToolDefinition(
+            name=dto.name, description=dto.description, parameters=dto.parameters
+        )
+
+    @staticmethod
+    def to_objective_definition(dto: ObjectiveDefinitionDto) -> ObjectiveDefinition:
+        return ObjectiveDefinition(
             name=dto.name, description=dto.description, parameters=dto.parameters
         )
 

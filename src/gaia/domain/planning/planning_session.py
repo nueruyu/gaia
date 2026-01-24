@@ -9,7 +9,12 @@ from gaia.domain.ai.message import (
     Message,
     ToolMessage,
 )
-from gaia.domain.ai.tool import ToolCall, ToolDefinition, ToolOutput
+from gaia.domain.ai.tool import (
+    ObjectiveDefinition,
+    ToolCall,
+    ToolDefinition,
+    ToolOutput,
+)
 from gaia.domain.planning.exceptions import PlanningError
 from gaia.domain.planning.plan import Plan
 
@@ -26,6 +31,7 @@ class PlanningSession:
     history: List[Message]
     status: SessionStatus
     tool_definitions: List[ToolDefinition]
+    objective_definitions: List[ObjectiveDefinition]
     generated_plan: Optional[Plan] = None
 
     @classmethod
@@ -33,12 +39,14 @@ class PlanningSession:
         cls,
         instruction: str,
         tool_definitions: List[ToolDefinition],
+        objective_definitions: List[ObjectiveDefinition],
     ):
         return cls(
             session_id=str(uuid4()),
             history=[HumanMessage(content=instruction)],
             status=SessionStatus.THINKING,
             tool_definitions=tool_definitions,
+            objective_definitions=objective_definitions,
         )
 
     def request_tool_calls(self, content: str, tool_calls: List[ToolCall]) -> None:
@@ -65,7 +73,6 @@ class PlanningSession:
     def add_tool_outputs(
         self,
         outputs: List[ToolOutput],
-        new_definitions: List[ToolDefinition],
     ):
         if self.status != SessionStatus.WAITING_FOR_TOOL:
             raise PlanningError("Session is not waiting for tool outputs.")
@@ -83,7 +90,6 @@ class PlanningSession:
                 ToolMessage(tool_call_id=output.tool_call_id, content=output.output)
             )
 
-        self.tool_definitions = new_definitions
         self.status = SessionStatus.THINKING
 
     def get_waiting_tool_calls(self) -> list[ToolCall]:

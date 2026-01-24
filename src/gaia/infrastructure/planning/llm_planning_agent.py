@@ -3,11 +3,11 @@ from typing import List, Optional, Tuple
 
 from gaia.application.planning.planning_agent import PlanningAgent
 from gaia.domain.ai.message import HumanMessage
-from gaia.domain.ai.tool import ToolCall
+from gaia.domain.ai.tool import ObjectiveDefinition, ToolCall
 from gaia.domain.planning.plan import Objective, Plan, Strategy
 from gaia.domain.planning.planning_session import PlanningSession
 from gaia.infrastructure.llms.llm import Llm
-from gaia.infrastructure.planning.prompts import SYSTEM_PROMPT
+from gaia.infrastructure.planning.prompts import SYSTEM_PROMPT_TEMPLATE
 
 
 class LlmPlanningAgent(PlanningAgent):
@@ -17,7 +17,9 @@ class LlmPlanningAgent(PlanningAgent):
     async def think(
         self, session: PlanningSession
     ) -> Tuple[str, List[ToolCall], Optional[Plan]]:
-        messages = [HumanMessage(content=SYSTEM_PROMPT), *session.history]
+        objective_schema = self._format_objective_schema(session.objective_definitions)
+        system_prompt = SYSTEM_PROMPT_TEMPLATE.format(objective_schema=objective_schema)
+        messages = [HumanMessage(content=system_prompt), *session.history]
 
         response = await self._llm.invoke(messages, session.tool_definitions)
 
@@ -29,6 +31,18 @@ class LlmPlanningAgent(PlanningAgent):
             parsed_plan = self._try_parse_plan(content)
 
         return content, tool_calls, parsed_plan
+
+    def _format_objective_schema(
+        self, objective_definitions: List[ObjectiveDefinition]
+    ) -> str:
+        if not objective_definitions:
+            return "No specific objective types defined."
+
+        lines = []
+        for obj_def in objective_definitions:
+            lines.append(f"- **{obj_def.name}**: {obj_def.description}")
+            lines.append(f"  Parameters: {json.dumps(obj_def.parameters)}")
+        return "\n".join(lines)
 
     def _try_parse_plan(self, content: str) -> Optional[Plan]:
         try:

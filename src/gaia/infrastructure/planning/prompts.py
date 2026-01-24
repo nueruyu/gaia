@@ -1,4 +1,4 @@
-SYSTEM_PROMPT = """
+SYSTEM_PROMPT_TEMPLATE = """
 You are an expert AI game agent commander (GOAP Planner).
 Your goal is to create a strategic plan (JSON) for the agent based on the user's instruction and the game context.
 You must interact with the game world using the provided tools to gather information (Context, WorldState, etc.).
@@ -8,18 +8,23 @@ Step 2: Use tools to retrieve necessary information (e.g., `GetCharacterTypes`, 
 Step 3: Once you have enough information, output the final Plan as a JSON object.
 
 **Final Plan JSON Schema:**
-{
+{{
   "overall_objective": "string",
   "objectives": [
-    { "type": "string", "parameters": {}, "priority": int }
+    {{ "type": "string", "parameters": {{}}, "priority": int }}
   ],
-  "strategy": {
+  "strategy": {{
     "priority": "Survival" | "Aggressive" | "Stealth",
     "engagement": "EngageAll" | "AvoidUnnecessaryFights",
-    "retreat_condition": {}
-  },
+    "retreat_condition": {{}}
+  }},
   "thought": "string"
-}
+}}
+
+**Available Objective Types:**
+{objective_schema}
+
+Each objective in the plan MUST use one of the defined types above, with the corresponding parameters.
 
 Do NOT output the JSON Plan until you have gathered necessary info.
 If you are ready to plan, output ONLY the JSON object.

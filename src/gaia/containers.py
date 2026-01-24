@@ -41,9 +41,11 @@ class Container(containers.DeclarativeContainer):
         )
     )
 
-    create_session_use_case: providers.Factory[CreateSessionUseCase] = providers.Factory(
-        CreateSessionUseCase,
-        planning_session_service=planning_session_service,
+    create_session_use_case: providers.Factory[CreateSessionUseCase] = (
+        providers.Factory(
+            CreateSessionUseCase,
+            planning_session_service=planning_session_service,
+        )
     )
 
     submit_tool_outputs_use_case: providers.Factory[SubmitToolOutputsUseCase] = (
