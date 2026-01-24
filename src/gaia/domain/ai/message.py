@@ -1,32 +1,14 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
+
+from gaia.domain.ai.tool import ToolCall
 
 
 class MessageType(str, Enum):
     HUMAN = "human"
     AI = "ai"
     TOOL = "tool"
-
-
-@dataclass
-class ToolDefinition:
-    name: str
-    description: str
-    parameters: Dict[str, Any]
-
-
-@dataclass
-class ToolCall:
-    id: str
-    function_name: str
-    arguments: Dict[str, Any]
-
-
-@dataclass
-class ToolOutput:
-    tool_call_id: str
-    output: str
 
 
 @dataclass

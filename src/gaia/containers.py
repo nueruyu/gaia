@@ -1,10 +1,12 @@
 from dependency_injector import containers, providers
 
-from gaia.application.planning.create_session import CreateSessionUseCase
+from gaia.application.planning.create_session_use_case import CreateSessionUseCase
 from gaia.application.planning.planning_service import PlanningService
-from gaia.application.planning.submit_tool_outputs import SubmitToolOutputsUseCase
+from gaia.application.planning.submit_tool_outputs_use_case import (
+    SubmitToolOutputsUseCase,
+)
 from gaia.config import Settings
-from gaia.domain.planning.repositories import PlanningSessionRepository
+from gaia.domain.planning.planning_session_repository import PlanningSessionRepository
 from gaia.infrastructure.langchain.chat_models import create_gemini
 from gaia.infrastructure.llms.langchain_llm import LangChainLlm
 from gaia.infrastructure.llms.llm import Llm

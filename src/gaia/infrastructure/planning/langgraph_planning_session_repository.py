@@ -5,8 +5,8 @@ import aiosqlite
 from langgraph.checkpoint.base import Checkpoint, RunnableConfig
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
-from gaia.domain.planning.aggregates import PlanningSession
-from gaia.domain.planning.repositories import PlanningSessionRepository
+from gaia.domain.planning.planning_session import PlanningSession
+from gaia.domain.planning.planning_session_repository import PlanningSessionRepository
 
 
 class LangGraphPlanningSessionRepository(PlanningSessionRepository):

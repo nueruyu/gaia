@@ -2,11 +2,13 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException
 
 from gaia.application.ai.dto import CreateSessionRequest, SubmitToolOutputsRequest
-from gaia.application.planning.create_session import CreateSessionUseCase
+from gaia.application.planning.create_session_use_case import CreateSessionUseCase
 from gaia.application.planning.dtos import (
     PlanningSessionDto,
 )
-from gaia.application.planning.submit_tool_outputs import SubmitToolOutputsUseCase
+from gaia.application.planning.submit_tool_outputs_use_case import (
+    SubmitToolOutputsUseCase,
+)
 from gaia.containers import Container
 
 router = APIRouter(prefix="/planning", tags=["Planning"])

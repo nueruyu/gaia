@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from gaia.domain.ai.values import AIMessage, Message, ToolDefinition
+from gaia.domain.ai.message import AIMessage, Message
+from gaia.domain.ai.tool import ToolDefinition
 
 
 class Llm(ABC):

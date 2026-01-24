@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
 
-from gaia.domain.ai.values import ToolCall
-from gaia.domain.planning.aggregates import PlanningSession
-from gaia.domain.planning.entities import Plan
+from gaia.domain.ai.tool import ToolCall
+from gaia.domain.planning.plan import Plan
+from gaia.domain.planning.planning_session import PlanningSession
 
 
 class PlanningService(ABC):

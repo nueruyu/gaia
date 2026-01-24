@@ -1,11 +1,12 @@
 import json
 from typing import List, Optional, Tuple
 
-from gaia.application.ai.ports import Llm
 from gaia.application.planning.planning_service import PlanningService
-from gaia.domain.ai.values import HumanMessage, ToolCall
-from gaia.domain.planning.aggregates import PlanningSession
-from gaia.domain.planning.entities import Objective, Plan, Strategy
+from gaia.domain.ai.message import HumanMessage
+from gaia.domain.ai.tool import ToolCall
+from gaia.domain.planning.plan import Objective, Plan, Strategy
+from gaia.domain.planning.planning_session import PlanningSession
+from gaia.infrastructure.llms.llm import Llm
 from gaia.infrastructure.planning.prompts import SYSTEM_PROMPT
 
 

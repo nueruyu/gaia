@@ -1,7 +1,8 @@
 from typing import List
 
-from gaia.application.ai.ports import Llm
-from gaia.domain.ai.values import AIMessage, Message, ToolDefinition
+from gaia.domain.ai.message import AIMessage, Message
+from gaia.domain.ai.tool import ToolDefinition
+from gaia.infrastructure.llms.llm import Llm
 
 
 class MockLlm(Llm):

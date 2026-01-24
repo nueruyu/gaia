@@ -123,7 +123,7 @@ if st.session_state.session_id:
     )
 
     # CASE 1: Waiting for Tool Outputs
-    if st.session_state.current_status == "WaitingForTool":
+    if st.session_state.current_status == "waiting_for_tool":
         st.subheader("Tool Execution Required")
 
         tool_outputs = []
@@ -168,7 +168,7 @@ if st.session_state.session_id:
                         )
 
                         # Handle Response
-                        if data["status"] == "WaitingForTool":
+                        if data["status"] == "waiting_for_tool":
                             st.session_state.pending_tool_calls = data["tool_calls"]
                             st.session_state.messages.append(
                                 {
@@ -176,7 +176,7 @@ if st.session_state.session_id:
                                     "content": f"Requested Tools: {[tc['function_name'] for tc in data['tool_calls']]}",
                                 }
                             )
-                        elif data["status"] == "Completed":
+                        elif data["status"] == "completed":
                             st.session_state.pending_tool_calls = []
                             st.session_state.messages.append(
                                 {
@@ -191,7 +191,7 @@ if st.session_state.session_id:
                     st.error(f"Error: {e}")
 
     # CASE 2: Completed
-    elif st.session_state.current_status == "Completed":
+    elif st.session_state.current_status == "completed":
         st.success("Planning Completed")
 
     # CASE 3: Error

@@ -6,15 +6,14 @@ from langchain_core.messages import BaseMessage
 from langchain_core.messages import HumanMessage as LCHumanMessage
 from langchain_core.messages import ToolMessage as LCToolMessage
 
-from gaia.application.ai.ports import Llm
-from gaia.domain.ai.values import (
+from gaia.domain.ai.message import (
     AIMessage,
     Message,
     MessageType,
-    ToolCall,
-    ToolDefinition,
     ToolMessage,
 )
+from gaia.domain.ai.tool import ToolCall, ToolDefinition
+from gaia.infrastructure.llms.llm import Llm
 
 
 class LangChainLlm(Llm):

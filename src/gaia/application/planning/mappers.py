@@ -5,8 +5,9 @@ from gaia.application.planning.dtos import (
     PlanDto,
     PlanningSessionDto,
 )
-from gaia.domain.ai.values import AIMessage, ToolDefinition, ToolOutput
-from gaia.domain.planning.aggregates import (
+from gaia.domain.ai.message import AIMessage
+from gaia.domain.ai.tool import ToolDefinition, ToolOutput
+from gaia.domain.planning.planning_session import (
     PlanningSession,
     SessionStatus,
 )
