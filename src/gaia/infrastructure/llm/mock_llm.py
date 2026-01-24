@@ -13,10 +13,30 @@ class MockChatModel(BaseChatModel):
         {
             "overall_objective": "MOCK: Eliminate threat and secure resources.",
             "objectives": [
-                { "type": "DefeatCharacterType", "parameters": { "characterTypeId": "player" }, "priority": 10 },
-                { "type": "CollectItem", "parameters": { "itemId": "item-guid-potion" }, "priority": 5 }
+                {
+                    "type": "DefeatCharacter",
+                    "parameters": {
+                        "character_type_id": "1db032f1-62c5-4271-b752-e0b6a953f8aa",
+                        "quantity": 1
+                    },
+                    "priority": 10
+                },
+                {
+                    "type": "AcquireItem",
+                    "parameters": {
+                        "item_id": "58d36adf-70d7-4e47-91a4-10db1ee6727a",
+                        "quantity": 1
+                    },
+                    "priority": 5
+                }
             ],
-            "strategy": { "priority": "Aggressive", "engagement": "EngageAll", "retreat_condition": { "healthBelow": 0.2 } },
+            "strategy": {
+                "priority": "Aggressive",
+                "engagement": "EngageAll",
+                "retreat_condition": {
+                    "health_below": 0.2
+                }
+            },
             "thought": "This is a mock response. The player is the highest threat."
         }
         """
