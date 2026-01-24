@@ -1,6 +1,5 @@
 from dependency_injector import containers, providers
 
-from gaia.application.ai.ports import Llm
 from gaia.application.planning.create_session import CreateSessionUseCase
 from gaia.application.planning.planning_service import PlanningService
 from gaia.application.planning.submit_tool_outputs import SubmitToolOutputsUseCase
@@ -8,6 +7,7 @@ from gaia.config import Settings
 from gaia.domain.planning.repositories import PlanningSessionRepository
 from gaia.infrastructure.langchain.chat_models import create_gemini
 from gaia.infrastructure.llms.langchain_llm import LangChainLlm
+from gaia.infrastructure.llms.llm import Llm
 from gaia.infrastructure.llms.mock_llm import MockLlm
 from gaia.infrastructure.planning.langgraph_planning_session_repository import (
     LangGraphPlanningSessionRepository,
@@ -35,13 +35,13 @@ def _create_llm_service(llm: Llm) -> LlmPlanningService:
 def _create_session_use_case(
     repo: PlanningSessionRepository, llm: PlanningService
 ) -> CreateSessionUseCase:
-    return CreateSessionUseCase(repo=repo, llm=llm)
+    return CreateSessionUseCase(session_repository=repo, planning_service=llm)
 
 
 def _create_submit_tool_outputs_use_case(
     repo: PlanningSessionRepository, llm: PlanningService
 ) -> SubmitToolOutputsUseCase:
-    return SubmitToolOutputsUseCase(repo=repo, llm=llm)
+    return SubmitToolOutputsUseCase(session_repository=repo, planning_service=llm)
 
 
 class Container(containers.DeclarativeContainer):

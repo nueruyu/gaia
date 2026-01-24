@@ -12,14 +12,18 @@ from gaia.domain.planning.repositories import PlanningSessionRepository
 
 
 class SubmitToolOutputsUseCase:
-    def __init__(self, repo: PlanningSessionRepository, llm: PlanningService):
-        self._repo = repo
-        self._llm = llm
+    def __init__(
+        self,
+        session_repository: PlanningSessionRepository,
+        planning_service: PlanningService,
+    ):
+        self._session_repository = session_repository
+        self._planning_service = planning_service
 
     async def execute(
         self, session_id: str, request: SubmitToolOutputsRequest
     ) -> PlanningSessionDto:
-        session = await self._repo.get(session_id)
+        session = await self._session_repository.get(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
 
@@ -34,8 +38,8 @@ class SubmitToolOutputsUseCase:
 
         session.add_tool_outputs(outputs, tool_defs)
 
-        content, tool_calls, plan = await self._llm.think(session)
+        content, tool_calls, plan = await self._planning_service.think(session)
         session.add_ai_response(content, tool_calls, plan)
 
-        await self._repo.save(session)
+        await self._session_repository.save(session)
         return SessionMapper.to_dto(session)

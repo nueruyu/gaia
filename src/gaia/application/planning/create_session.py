@@ -9,9 +9,13 @@ from gaia.domain.planning.repositories import PlanningSessionRepository
 
 
 class CreateSessionUseCase:
-    def __init__(self, repo: PlanningSessionRepository, llm: PlanningService):
-        self._repo = repo
-        self._llm = llm
+    def __init__(
+        self,
+        session_repository: PlanningSessionRepository,
+        planning_service: PlanningService,
+    ):
+        self._session_repository = session_repository
+        self._planning_service = planning_service
 
     async def execute(self, request: CreateSessionRequest) -> PlanningSessionDto:
         tool_defs = [
@@ -20,8 +24,8 @@ class CreateSessionUseCase:
         ]
         session = PlanningSession.create(request.instruction, tool_defs)
 
-        content, tool_calls, plan = await self._llm.think(session)
+        content, tool_calls, plan = await self._planning_service.think(session)
         session.add_ai_response(content, tool_calls, plan)
 
-        await self._repo.save(session)
+        await self._session_repository.save(session)
         return SessionMapper.to_dto(session)
