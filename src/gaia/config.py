@@ -11,4 +11,4 @@ class Settings(BaseSettings):
     )
 
     LLM_MODE: Literal["MOCK", "GEMINI"] = "GEMINI"
-    DB_PATH: str = "sqlite+aiosqlite:///gaia.db"
+    DB_PATH: str = ".local/gaia.db"

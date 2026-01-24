@@ -6,7 +6,9 @@ import json
 API_BASE_URL = "http://127.0.0.1:8000"
 
 # --- Defaults ---
-DEFAULT_INSTRUCTION = "現在のエリアを探索し、敵がいれば排除しつつ、回復アイテムを集めてください。"
+DEFAULT_INSTRUCTION = (
+    "現在のエリアを探索し、敵がいれば排除しつつ、回復アイテムを集めてください。"
+)
 
 DEFAULT_TOOL_DEFINITIONS = [
     {
@@ -158,7 +160,10 @@ if st.session_state.session_id:
 
                         # Log the user action
                         st.session_state.messages.append(
-                            {"role": "tool", "content": f"Executed {len(tool_outputs)} tools."}
+                            {
+                                "role": "tool",
+                                "content": f"Executed {len(tool_outputs)} tools.",
+                            }
                         )
 
                         # Handle Response

@@ -6,7 +6,7 @@ from gaia.domain.planning.aggregates import PlanningSession
 from gaia.domain.planning.entities import Plan
 
 
-class LlmService(ABC):
+class PlanningService(ABC):
     @abstractmethod
     async def think(
         self, session: PlanningSession

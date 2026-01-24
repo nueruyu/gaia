@@ -6,13 +6,13 @@ from gaia.application.ai.dto import (
 from gaia.application.planning.dtos import (
     PlanningSessionDto,
 )
-from gaia.application.planning.llm_service import LlmService
 from gaia.application.planning.mappers import SessionMapper, ToolMapper
+from gaia.application.planning.planning_service import PlanningService
 from gaia.domain.planning.repositories import PlanningSessionRepository
 
 
 class SubmitToolOutputsUseCase:
-    def __init__(self, repo: PlanningSessionRepository, llm: LlmService):
+    def __init__(self, repo: PlanningSessionRepository, llm: PlanningService):
         self._repo = repo
         self._llm = llm
 

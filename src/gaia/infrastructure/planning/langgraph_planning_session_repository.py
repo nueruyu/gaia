@@ -8,7 +8,7 @@ from gaia.domain.planning.aggregates import PlanningSession
 from gaia.domain.planning.repositories import PlanningSessionRepository
 
 
-class LangGraphRepository(PlanningSessionRepository):
+class LangGraphPlanningSessionRepository(PlanningSessionRepository):
     def __init__(self, db_path: str):
         self._db_path = db_path
         self._saver: Optional[AsyncSqliteSaver] = None
