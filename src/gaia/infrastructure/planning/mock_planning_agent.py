@@ -11,7 +11,7 @@ DEFAULT_MOCK_PLAN_JSON = {
         {
             "type": "DefeatCharacter",
             "parameters": {
-                "character_type_id": "1db032f1-62c5-4271-b752-e0b6a953f8aa",
+                "target_type_id": "1db032f1-62c5-4271-b752-e0b6a953f8aa",
                 "quantity": 1,
             },
             "priority": 10,
