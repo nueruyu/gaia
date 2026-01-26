@@ -20,10 +20,3 @@ class ToolCall:
 class ToolOutput:
     tool_call_id: str
     output: str
-
-
-@dataclass
-class ObjectiveDefinition:
-    name: str
-    description: str
-    parameters: Dict[str, Any]

@@ -1,15 +1,23 @@
 from gaia.application.ai.mapper import AIMapper
 from gaia.application.planning.dtos import (
+    ObjectiveDefinitionDto,
     PlanDto,
     PlanningSessionDto,
 )
 from gaia.domain.planning.plan import Plan
 from gaia.domain.planning.planning_session import (
+    ObjectiveDefinition,
     PlanningSession,
 )
 
 
 class PlanningMapper:
+    @staticmethod
+    def to_objective_definition(dto: ObjectiveDefinitionDto) -> ObjectiveDefinition:
+        return ObjectiveDefinition(
+            name=dto.name, description=dto.description, parameters=dto.parameters
+        )
+
     @staticmethod
     def to_planning_session_dto(session: PlanningSession) -> PlanningSessionDto:
         tool_call_dtos = [

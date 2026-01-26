@@ -3,9 +3,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage as LCAIMessage
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, SystemMessage
 from langchain_core.messages import HumanMessage as LCHumanMessage
-from langchain_core.messages import SystemMessage
 from langchain_core.messages import ToolMessage as LCToolMessage
 
 from gaia.application.planning.planning_agent import PlanningAgent
@@ -15,9 +14,9 @@ from gaia.domain.ai.message import (
     MessageType,
     ToolMessage,
 )
-from gaia.domain.ai.tool import ObjectiveDefinition, ToolCall, ToolDefinition
+from gaia.domain.ai.tool import ToolCall, ToolDefinition
 from gaia.domain.planning.plan import Objective, Plan, Strategy
-from gaia.domain.planning.planning_session import PlanningSession
+from gaia.domain.planning.planning_session import ObjectiveDefinition, PlanningSession
 from gaia.infrastructure.planning.prompts import SYSTEM_PROMPT
 
 

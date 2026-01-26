@@ -1,10 +1,12 @@
 from gaia.application.ai.dto import (
-    CreateSessionRequest,
-    ObjectiveDefinitionDto,
     ToolDefinitionDto,
 )
 from gaia.application.ai.mapper import AIMapper
-from gaia.application.planning.dtos import PlanningSessionDto
+from gaia.application.planning.dtos import (
+    CreateSessionRequest,
+    ObjectiveDefinitionDto,
+    PlanningSessionDto,
+)
 from gaia.application.planning.mapper import PlanningMapper
 from gaia.application.planning.planning_session_service import PlanningSessionService
 from gaia.domain.planning.planning_session import PlanningSession
@@ -20,7 +22,7 @@ class CreateSessionUseCase:
             for td in request.tool_definitions
         ]
         objective_defs = [
-            AIMapper.to_objective_definition(ObjectiveDefinitionDto(**od))
+            PlanningMapper.to_objective_definition(ObjectiveDefinitionDto(**od))
             for od in request.objective_definitions
         ]
         session = PlanningSession.create(request.instruction, tool_defs, objective_defs)

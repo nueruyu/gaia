@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from gaia.domain.ai.message import (
@@ -10,7 +10,6 @@ from gaia.domain.ai.message import (
     ToolMessage,
 )
 from gaia.domain.ai.tool import (
-    ObjectiveDefinition,
     ToolCall,
     ToolDefinition,
     ToolOutput,
@@ -23,6 +22,13 @@ class SessionStatus(str, Enum):
     THINKING = "thinking"
     WAITING_FOR_TOOL = "waiting_for_tool"
     COMPLETED = "completed"
+
+
+@dataclass
+class ObjectiveDefinition:
+    name: str
+    description: str
+    parameters: Dict[str, Any]
 
 
 @dataclass
