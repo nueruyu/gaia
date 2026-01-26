@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -18,6 +19,8 @@ from gaia.domain.ai.tool import ToolCall, ToolDefinition
 from gaia.domain.planning.plan import Objective, Plan, Strategy
 from gaia.domain.planning.planning_session import ObjectiveDefinition, PlanningSession
 from gaia.infrastructure.planning.prompts import SYSTEM_PROMPT
+
+logger = logging.getLogger(__name__)
 
 
 class LangChainPlanningAgent(PlanningAgent):
@@ -141,5 +144,6 @@ class LangChainPlanningAgent(PlanningAgent):
                 strategy=Strategy(**data["strategy"]),
                 thought=data.get("thought", ""),
             )
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to parse plan: {e}", exc_info=True)
             return None

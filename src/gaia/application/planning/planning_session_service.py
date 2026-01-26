@@ -1,6 +1,10 @@
+import logging
+
 from gaia.application.planning.planning_agent import PlanningAgent
 from gaia.domain.planning.planning_session import PlanningSession
 from gaia.domain.planning.planning_session_repository import PlanningSessionRepository
+
+logger = logging.getLogger(__name__)
 
 
 class PlanningSessionService:
@@ -17,7 +21,10 @@ class PlanningSessionService:
 
         if plan:
             session.complete_with_plan(content, plan)
-        else:
+        elif tool_calls:
             session.request_tool_calls(content, tool_calls)
+        else:
+            logger.warning(f"Failed to planning. content: {content}")
+            raise ValueError(f"Failed to planning. content: {content}")
 
         await self._session_repository.save(session)
