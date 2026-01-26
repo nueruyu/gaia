@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from gaia.application.ai.dto import SubmitToolOutputsRequest
 from gaia.application.planning.create_session_use_case import CreateSessionUseCase
@@ -23,10 +23,7 @@ async def create_session(
         Provide[Container.create_session_use_case]
     ),
 ):
-    try:
-        return await use_case.execute(request)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return await use_case.execute(request)
 
 
 @router.post("/respond/{session_id}", response_model=PlanningSessionDto)
@@ -38,7 +35,4 @@ async def submit_tool_outputs(
         Provide[Container.submit_tool_outputs_use_case]
     ),
 ):
-    try:
-        return await use_case.execute(session_id, request)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return await use_case.execute(session_id, request)
