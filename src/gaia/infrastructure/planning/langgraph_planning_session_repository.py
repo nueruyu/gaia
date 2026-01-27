@@ -5,20 +5,28 @@ import aiosqlite
 from langgraph.checkpoint.base import Checkpoint, RunnableConfig
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
+from gaia.domain.core.lifecycle import AppLifecycleManager
 from gaia.domain.planning.planning_session import PlanningSession
 from gaia.domain.planning.planning_session_repository import PlanningSessionRepository
 
 
 class LangGraphPlanningSessionRepository(PlanningSessionRepository):
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str, lifecycle: AppLifecycleManager):
         self._db_path = db_path
         self._conn: Optional[aiosqlite.Connection] = None
         self._saver: Optional[AsyncSqliteSaver] = None
+
+        lifecycle.register_shutdown_hook(self.close)
 
     async def initialize(self) -> None:
         self._conn = await aiosqlite.connect(self._db_path)
         self._saver = AsyncSqliteSaver(self._conn)
         await self._saver.setup()
+
+    async def close(self) -> None:
+        if self._conn:
+            await self._conn.close()
+            self._conn = None
 
     async def save(self, session: PlanningSession) -> None:
         if not self._saver:

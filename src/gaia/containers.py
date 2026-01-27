@@ -7,6 +7,7 @@ from gaia.application.planning.submit_tool_outputs_use_case import (
     SubmitToolOutputsUseCase,
 )
 from gaia.config import Settings
+from gaia.domain.core.lifecycle import AppLifecycleManager
 from gaia.infrastructure.langchain.chat_models import create_gemini
 from gaia.infrastructure.planning.langchain_planning_agent import LangChainPlanningAgent
 from gaia.infrastructure.planning.langgraph_planning_session_repository import (
@@ -15,8 +16,12 @@ from gaia.infrastructure.planning.langgraph_planning_session_repository import (
 from gaia.infrastructure.planning.mock_planning_agent import MockPlanningAgent
 
 
-def _create_planning_repo(settings: Settings) -> LangGraphPlanningSessionRepository:
-    return LangGraphPlanningSessionRepository(db_path=settings.DB_PATH)
+def _create_planning_repo(
+    settings: Settings, lifecycle: AppLifecycleManager
+) -> LangGraphPlanningSessionRepository:
+    return LangGraphPlanningSessionRepository(
+        db_path=settings.DB_PATH, lifecycle=lifecycle
+    )
 
 
 def _create_planning_agent(settings: Settings) -> PlanningAgent:
@@ -31,8 +36,14 @@ def _create_planning_agent(settings: Settings) -> PlanningAgent:
 class Container(containers.DeclarativeContainer):
     config: providers.Singleton[Settings] = providers.Singleton(Settings)
 
+    lifecycle_manager: providers.Singleton[AppLifecycleManager] = providers.Singleton(
+        AppLifecycleManager
+    )
+
     planning_repo: providers.Singleton[LangGraphPlanningSessionRepository] = (
-        providers.Singleton(_create_planning_repo, settings=config)
+        providers.Singleton(
+            _create_planning_repo, settings=config, lifecycle=lifecycle_manager
+        )
     )
 
     planning_agent: providers.Singleton[PlanningAgent] = providers.Singleton(

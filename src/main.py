@@ -11,9 +11,16 @@ from gaia.presentation.api.exception_handlers import register_exception_handlers
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     container = app.state.container
+
+    # Manual initialization logic (unchanged)
     repo = container.planning_repo()
     await repo.initialize()
+
     yield
+
+    # Generic shutdown logic
+    lifecycle = container.lifecycle_manager()
+    await lifecycle.shutdown()
 
 
 def create_app():
