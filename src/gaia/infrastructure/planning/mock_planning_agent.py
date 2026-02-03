@@ -12,10 +12,18 @@ DEFAULT_MOCK_PLAN_JSON = {
             "type": "DefeatCharacter",
             "parameters": {
                 "target_type_id": "1db032f1-62c5-4271-b752-e0b6a953f8aa",
-                "target_quantity": 1,
+                "target_quantity": 3,
             },
             "priority": 10,
-        }
+        },
+        {
+            "type": "AcquireItem",
+            "parameters": {
+                "target_item_id": "58d36adf-70d7-4e47-91a4-10db1ee6727a",
+                "target_quantity": 3,
+            },
+            "priority": 10,
+        },
     ],
     "strategy": {
         "priority": "Aggressive",
