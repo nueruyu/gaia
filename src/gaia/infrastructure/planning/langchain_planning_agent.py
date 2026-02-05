@@ -30,6 +30,8 @@ class LangChainPlanningAgent(PlanningAgent):
     async def think(
         self, session: PlanningSession
     ) -> Tuple[str, List[ToolCall], Optional[Plan]]:
+        logger.info(f"[{session.session_id}] Starting think process...")
+
         # 1. Prepare System Prompt with Objectives
         system_content = self._build_system_prompt(session.objective_definitions)
 
@@ -37,12 +39,15 @@ class LangChainPlanningAgent(PlanningAgent):
         lc_messages: List[BaseMessage] = [SystemMessage(content=system_content)]
         lc_messages.extend(self._convert_messages(session.history))
 
+        logger.debug(f"[{session.session_id}] Sending messages to LLM: {lc_messages}")
+
         # 3. Bind Tools
         tools_schema = [self._to_tool_schema(td) for td in session.tool_definitions]
         model = self._model.bind_tools(tools_schema) if tools_schema else self._model
 
         # 4. Invoke
         response = await model.ainvoke(lc_messages)
+        logger.info(f"[{session.session_id}] Received response from LLM: {response}")
 
         # 5. Parse Response
         content = str(response.content)
@@ -51,6 +56,10 @@ class LangChainPlanningAgent(PlanningAgent):
         parsed_plan = None
         if not tool_calls:
             parsed_plan = self._try_parse_plan(content)
+
+        logger.info(
+            f"[{session.session_id}] Parsed output - Tool Calls: {len(tool_calls)}, Plan Generated: {parsed_plan is not None}"
+        )
 
         return content, tool_calls, parsed_plan
 
