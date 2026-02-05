@@ -1,39 +1,38 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 
-from gaia.application.use_cases.create_plan import CreatePlanUseCase
-from gaia.containers import Container
-from gaia.presentation.api.schemas import ApiPlanRequest, ApiPlanResponse
-
-router = APIRouter()
-
-
-@router.post(
-    "/request_plan",
-    response_model=ApiPlanResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["AI Planning"],
+from gaia.application.ai.dto import SubmitToolOutputsRequest
+from gaia.application.planning.create_session_use_case import CreateSessionUseCase
+from gaia.application.planning.dtos import (
+    CreateSessionRequest,
+    PlanningSessionDto,
 )
+from gaia.application.planning.submit_tool_outputs_use_case import (
+    SubmitToolOutputsUseCase,
+)
+from gaia.containers import Container
+
+router = APIRouter(prefix="/planning", tags=["Planning"])
+
+
+@router.post("/request", response_model=PlanningSessionDto)
 @inject
-def request_plan_endpoint(
-    request: ApiPlanRequest,
-    create_plan_use_case: CreatePlanUseCase = Depends(
-        Provide[Container.create_plan_use_case]
+async def create_session(
+    request: CreateSessionRequest,
+    use_case: CreateSessionUseCase = Depends(
+        Provide[Container.create_session_use_case]
     ),
 ):
-    """Receives game state and context, then returns a strategic plan for an AI agent."""
-    try:
-        plan = create_plan_use_case.execute(request)
-        return plan
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
+    return await use_case.execute(request)
 
 
-@router.get("/health", tags=["System"])
-def health_check():
-    """A simple health check endpoint."""
-    return {"status": "ok"}
+@router.post("/respond/{session_id}", response_model=PlanningSessionDto)
+@inject
+async def submit_tool_outputs(
+    session_id: str,
+    request: SubmitToolOutputsRequest,
+    use_case: SubmitToolOutputsUseCase = Depends(
+        Provide[Container.submit_tool_outputs_use_case]
+    ),
+):
+    return await use_case.execute(session_id, request)

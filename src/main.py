@@ -1,29 +1,38 @@
 import uvicorn
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from gaia.containers import Container
 from gaia.presentation.api.app import create_api_router
+from gaia.presentation.api.exception_handlers import register_exception_handlers
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    container = app.state.container
+
+    # Manual initialization logic (unchanged)
+    repo = container.planning_repo()
+    await repo.initialize()
+
+    yield
+
+    # Generic shutdown logic
+    lifecycle = container.lifecycle_manager()
+    await lifecycle.shutdown()
 
 
 def create_app():
-    # Load environment variables from .env file
     load_dotenv()
-
-    # Create the DI container instance
     container = Container()
-
-    # Wire the container to the modules that need injection.
     container.wire(modules=["gaia.presentation.api.routers.plan"])
 
-    # Create the FastAPI app instance and include routers
-    app = FastAPI(
-        title="Game AI Agent Server (Reloadable)",
-        description="An API server using a clean, reloadable architecture.",
-        version="1.2.0",
-    )
+    app = FastAPI(title="Gaia AI Server", version="2.0.0", lifespan=lifespan)
+    app.state.container = container
 
-    # Get the router from the presentation layer
+    register_exception_handlers(app)
+
     api_router = create_api_router()
     app.include_router(api_router)
 

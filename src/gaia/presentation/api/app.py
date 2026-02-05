@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-
 from gaia.presentation.api.routers import plan
 
 

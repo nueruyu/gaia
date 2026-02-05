@@ -1,0 +1,24 @@
+from typing import Any, Dict, List
+
+from pydantic import BaseModel
+
+
+class SubmitToolOutputsRequest(BaseModel):
+    tool_outputs: List[Dict[str, Any]]
+
+
+class ToolCallDto(BaseModel):
+    id: str
+    function_name: str
+    arguments: str
+
+
+class ToolOutputDto(BaseModel):
+    tool_call_id: str
+    output: str
+
+
+class ToolDefinitionDto(BaseModel):
+    name: str
+    description: str
+    parameters: Dict[str, Any]

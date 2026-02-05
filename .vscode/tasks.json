@@ -24,6 +24,38 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "Ruff: Check & Fix",
+      "type": "shell",
+      "command": "poetry run ruff check --fix .",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Ruff: Format",
+      "type": "shell",
+      "command": "poetry run ruff format .",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Ruff: All (Fix & Format)",
+      "dependsOn": ["Ruff: Check & Fix", "Ruff: Format"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }
